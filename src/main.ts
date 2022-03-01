@@ -18,6 +18,6 @@ async function bootstrap() {
   app.connectMicroservice(microserviceConfig);
 
   await app.startAllMicroservices();
-  await app.listen(8082);
+  await app.listen(3001);
 }
 bootstrap();

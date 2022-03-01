@@ -6,4 +6,6 @@ export class CreateCustomerDto extends Model {
   firstName: string;
   @ApiProperty()
   lastName: string;
+  @ApiProperty()
+  creditLimit: number;
 }

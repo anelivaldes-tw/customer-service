@@ -7,13 +7,18 @@ import { TerminusModule } from '@nestjs/terminus';
 import { HealthController } from './health/health.controller';
 import { HealthModule } from './health/health.module';
 import { mysql } from './sequelize.config';
+import { Customer } from './customers/models/customer.model';
+import { EventPublisherModule } from './event-publisher/event-publisher.module';
+import { EventHandlerModule } from './event-handler/event-handler.module';
 
 @Module({
   imports: [
     TerminusModule,
     HealthModule,
-    SequelizeModule.forRoot(mysql),
+    SequelizeModule.forRoot({ ...mysql, models: [Customer] }),
     CustomersModule,
+    EventPublisherModule,
+    EventHandlerModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

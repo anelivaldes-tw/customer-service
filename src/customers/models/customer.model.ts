@@ -8,6 +8,6 @@ export class Customer extends Model {
   @Column
   lastName: string;
 
-  @Column({ defaultValue: true })
-  isActive: boolean;
+  @Column
+  creditLimit: number;
 }
