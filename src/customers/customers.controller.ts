@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { CustomersService } from './customers.service';
-import { CreateCustomerDto } from './dto/create-customer.dto';
+import { CustomerDto } from './dto/customer.dto';
 import { EventPattern } from '@nestjs/microservices';
 import { EventHandlerService } from '../event-handler/event-handler.service';
 import {
+  CustomerEvent,
   OrderEvent,
   OrderEventsTypes,
 } from '../event-publisher/models/events.model';
@@ -18,7 +19,7 @@ export class CustomersController {
   ) {}
 
   @Post()
-  create(@Body() createCustomerDto: CreateCustomerDto) {
+  create(@Body() createCustomerDto: CustomerDto) {
     return this.customersService.create(createCustomerDto);
   }
 
@@ -42,23 +43,15 @@ export class CustomersController {
     this.eventHandlerService.handleEvent('order', payload, async () => {
       const orderEvent: OrderEvent = payload.value;
       if (orderEvent.type === OrderEventsTypes.ORDER_CREATED) {
-        const valid = await this.customersService.validateOrder(orderEvent);
-        let orderValidatedEvent: OrderEvent = {
-          ...orderEvent,
+        const status = await this.customersService.validateOrder(orderEvent);
+        const customerEvent: CustomerEvent = {
+          customerId: orderEvent.customerId,
+          orderId: orderEvent.orderId,
+          orderTotal: orderEvent.orderTotal,
+          type: status,
         };
-        if (valid) {
-          orderValidatedEvent = {
-            ...orderValidatedEvent,
-            type: OrderEventsTypes.ORDER_APPROVED,
-          };
-        } else {
-          orderValidatedEvent = {
-            ...orderValidatedEvent,
-            type: OrderEventsTypes.ORDER_REJECTED,
-          };
-        }
         // TODO: Implement Transactional outbox pattern here. https://javascript.plainenglish.io/sequelize-transactions-4ca7b6491e86
-        this.eventPublisher.publish(orderValidatedEvent);
+        this.eventPublisher.publish(customerEvent);
       }
     });
   }

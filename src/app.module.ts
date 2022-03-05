@@ -2,25 +2,20 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CustomersModule } from './customers/customers.module';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { TerminusModule } from '@nestjs/terminus';
-import { HealthController } from './health/health.controller';
-import { HealthModule } from './health/health.module';
-import { mysql } from './sequelize.config';
-import { Customer } from './customers/models/customer.model';
 import { EventPublisherModule } from './event-publisher/event-publisher.module';
 import { EventHandlerModule } from './event-handler/event-handler.module';
+import { DatabaseModule } from './database/database.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    TerminusModule,
-    HealthModule,
-    SequelizeModule.forRoot({ ...mysql, models: [Customer] }),
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
     CustomersModule,
     EventPublisherModule,
     EventHandlerModule,
   ],
-  controllers: [AppController, HealthController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

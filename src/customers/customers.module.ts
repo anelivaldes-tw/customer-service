@@ -1,14 +1,21 @@
 import { Module } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CustomersController } from './customers.controller';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { Customer } from './models/customer.model';
 import { EventPublisherService } from '../event-publisher/event-publisher.service';
 import { EventHandlerService } from '../event-handler/event-handler.service';
+import { customersProviders } from './customers.providers';
+import { outboxProviders } from './outbox/outbox.providers';
+import { databaseProviders } from '../database/database.providers';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Customer])],
-  providers: [CustomersService, EventPublisherService, EventHandlerService],
+  providers: [
+    CustomersService,
+    ...customersProviders,
+    ...outboxProviders,
+    ...databaseProviders,
+    EventPublisherService,
+    EventHandlerService,
+  ],
   controllers: [CustomersController],
 })
 export class CustomersModule {}
