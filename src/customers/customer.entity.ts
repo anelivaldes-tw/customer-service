@@ -1,4 +1,5 @@
-import { Column, Table, Model } from 'sequelize-typescript';
+import { Column, Table, Model, HasMany } from 'sequelize-typescript';
+import { CreditReservation } from './credit-reservation.entity';
 
 @Table
 export class Customer extends Model {
@@ -10,4 +11,7 @@ export class Customer extends Model {
 
   @Column
   creditLimit: number;
+
+  @HasMany(() => CreditReservation)
+  creditReservations: CreditReservation[];
 }

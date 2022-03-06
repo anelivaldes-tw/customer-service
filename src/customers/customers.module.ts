@@ -6,11 +6,13 @@ import { EventHandlerService } from '../event-handler/event-handler.service';
 import { customersProviders } from './customers.providers';
 import { outboxProviders } from './outbox/outbox.providers';
 import { databaseProviders } from '../database/database.providers';
+import { creditReservationProviders } from './credit-reservation.providers';
 
 @Module({
   providers: [
     CustomersService,
     ...customersProviders,
+    ...creditReservationProviders,
     ...outboxProviders,
     ...databaseProviders,
     EventPublisherService,

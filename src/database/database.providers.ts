@@ -3,6 +3,7 @@ import { SEQUELIZE, DEVELOPMENT, TEST, PRODUCTION } from '../constants';
 import { databaseConfig } from './database.config';
 import { Outbox } from '../customers/outbox/outbox.entity';
 import { Customer } from '../customers/customer.entity';
+import { CreditReservation } from '../customers/credit-reservation.entity';
 
 export const databaseProviders = [
   {
@@ -23,7 +24,7 @@ export const databaseProviders = [
           config = databaseConfig.development;
       }
       const sequelize = new Sequelize(config);
-      sequelize.addModels([Customer, Outbox]);
+      sequelize.addModels([Customer, CreditReservation, Outbox]);
       await sequelize.sync();
       return sequelize;
     },
