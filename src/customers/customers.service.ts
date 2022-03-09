@@ -31,12 +31,21 @@ export class CustomersService {
     return this.customerRepository.findAll();
   }
 
-  async findOne(id: string): Promise<Customer> {
-    return this.customerRepository.findOne({
+  async findOne(id: string): Promise<any> {
+    const customer: Customer = await this.customerRepository.findOne<Customer>({
       where: {
         id,
       },
     });
+    const reservedCredit = await this.getReservedCredit(parseInt(id));
+    const { firstName, lastName, creditLimit } = customer;
+    return {
+      id,
+      firstName,
+      lastName,
+      creditLimit,
+      availableCredit: customer.creditLimit - reservedCredit,
+    };
   }
 
   async getReservedCredit(customerId: number) {
@@ -52,7 +61,7 @@ export class CustomersService {
     );
   }
 
-  async validateOrder(orderEvent: OrderEvent): Promise<CustomerEventTypes> {
+  async reserveCredit(orderEvent: OrderEvent): Promise<CustomerEventTypes> {
     const customer = await this.findOne(orderEvent.customerId);
     const reservedCredit = await this.getReservedCredit(customer.id);
     if (customer && customer.id) {
