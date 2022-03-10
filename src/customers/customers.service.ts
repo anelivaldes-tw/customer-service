@@ -37,15 +37,18 @@ export class CustomersService {
         id,
       },
     });
-    const reservedCredit = await this.getReservedCredit(parseInt(id));
-    const { firstName, lastName, creditLimit } = customer;
-    return {
-      id,
-      firstName,
-      lastName,
-      creditLimit,
-      availableCredit: customer.creditLimit - reservedCredit,
-    };
+    if (customer) {
+      const reservedCredit = await this.getReservedCredit(parseInt(id));
+      const { firstName, lastName, creditLimit } = customer;
+      return {
+        id,
+        firstName,
+        lastName,
+        creditLimit,
+        availableCredit: customer.creditLimit - reservedCredit,
+      };
+    }
+    return customer;
   }
 
   async getReservedCredit(customerId: number) {
@@ -63,8 +66,8 @@ export class CustomersService {
 
   async reserveCredit(orderEvent: OrderEvent): Promise<CustomerEventTypes> {
     const customer = await this.findOne(orderEvent.customerId);
-    const reservedCredit = await this.getReservedCredit(customer.id);
     if (customer && customer.id) {
+      const reservedCredit = await this.getReservedCredit(customer.id);
       if (orderEvent.orderTotal <= customer.creditLimit - reservedCredit) {
         // Add a new credit reservation
         this.creditReservationRepository.create<CreditReservation>({

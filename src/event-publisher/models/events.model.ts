@@ -1,8 +1,6 @@
 export enum OrderEventsTypes {
   ORDER_CREATED = 'ORDER_CREATED',
   ORDER_CANCELLED = 'ORDER_CANCELLED',
-  ORDER_APPROVED = 'ORDER_APPROVED',
-  ORDER_REJECTED = 'ORDER_REJECTED',
 }
 
 export enum CustomerEventTypes {
@@ -12,7 +10,7 @@ export enum CustomerEventTypes {
 }
 
 export interface OrderEvent {
-  type: OrderEventsTypes;
+  state: OrderEventsTypes;
   orderId: string;
   customerId: string;
   orderTotal: number;

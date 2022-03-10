@@ -42,7 +42,7 @@ export class CustomersController {
   async handleOrderEvents(payload: any) {
     this.eventHandlerService.handleEvent('order', payload, async () => {
       const orderEvent: OrderEvent = payload.value;
-      if (orderEvent.type === OrderEventsTypes.ORDER_CREATED) {
+      if (orderEvent.state === OrderEventsTypes.ORDER_CREATED) {
         const status = await this.customersService.reserveCredit(orderEvent);
         const customerEvent: CustomerEvent = {
           customerId: orderEvent.customerId,
