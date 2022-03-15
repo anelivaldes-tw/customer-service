@@ -64,6 +64,20 @@ export class CustomersService {
     );
   }
 
+  async orderHasBeenProcessed(orderId: string) {
+    // TODO:
+    //  We must save all processed messages, and persist at least the orderId, now we are checking
+    //  only against the messages that where successfully reserved. That is not enough
+    //  but for now we avoid a possible double credit reservation
+    const order =
+      await this.creditReservationRepository.findOne<CreditReservation>({
+        where: {
+          orderId,
+        },
+      });
+    return order != null;
+  }
+
   async reserveCredit(orderEvent: OrderEvent): Promise<CustomerEventTypes> {
     const customer = await this.findOne(orderEvent.customerId);
     if (customer && customer.id) {

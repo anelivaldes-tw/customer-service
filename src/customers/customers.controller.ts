@@ -42,16 +42,24 @@ export class CustomersController {
   async handleOrderEvents(payload: any) {
     this.eventHandlerService.handleEvent('order', payload, async () => {
       const orderEvent: OrderEvent = payload.value;
-      if (orderEvent.state === OrderEventsTypes.ORDER_CREATED) {
-        const status = await this.customersService.reserveCredit(orderEvent);
-        const customerEvent: CustomerEvent = {
-          customerId: orderEvent.customerId,
-          orderId: orderEvent.orderId,
-          orderTotal: orderEvent.orderTotal,
-          type: status,
-        };
-        // TODO: Implement Transactional outbox pattern here. https://javascript.plainenglish.io/sequelize-transactions-4ca7b6491e86
-        this.eventPublisher.publish(customerEvent);
+      const alreadyProcessed =
+        await this.customersService.orderHasBeenProcessed(orderEvent.orderId);
+      if (!alreadyProcessed) {
+        if (orderEvent.state === OrderEventsTypes.ORDER_CREATED) {
+          const status = await this.customersService.reserveCredit(orderEvent);
+          const customerEvent: CustomerEvent = {
+            customerId: orderEvent.customerId,
+            orderId: orderEvent.orderId,
+            orderTotal: orderEvent.orderTotal,
+            type: status,
+          };
+          // TODO: Implement Transactional outbox pattern here. https://javascript.plainenglish.io/sequelize-transactions-4ca7b6491e86
+          this.eventPublisher.publish(customerEvent);
+        }
+      } else {
+        console.log(
+          `A duplicated order has been received: OrderId: ${orderEvent.orderId} - WILL BE IGNORED`,
+        );
       }
     });
   }
