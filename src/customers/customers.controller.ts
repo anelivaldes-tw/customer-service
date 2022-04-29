@@ -4,7 +4,9 @@ import { CustomerDto } from './dto/customer.dto';
 import { EventPattern } from '@nestjs/microservices';
 import { EventHandlerService } from '../event-handler/event-handler.service';
 import {
+  CustomerCreatedEvent,
   CustomerEvent,
+  CustomerEventTypes,
   OrderEvent,
   OrderEventsTypes,
 } from '../event-publisher/models/events.model';
@@ -19,8 +21,21 @@ export class CustomersController {
   ) {}
 
   @Post()
-  create(@Body() createCustomerDto: CustomerDto) {
-    return this.customersService.create(createCustomerDto);
+  async create(@Body() createCustomerDto: CustomerDto) {
+    const customer = await this.customersService.create(createCustomerDto);
+    if (customer) {
+      const customerEvent: CustomerCreatedEvent = {
+        type: CustomerEventTypes.CUSTOMER_CREATED,
+        customerId: customer.id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        creditLimit: customer.creditLimit,
+        orders: [],
+      };
+      // TODO: Implement Transactional outbox pattern here. https://javascript.plainenglish.io/sequelize-transactions-4ca7b6491e86
+      this.eventPublisher.publish(customerEvent);
+    }
+    return customer;
   }
 
   @Get()
